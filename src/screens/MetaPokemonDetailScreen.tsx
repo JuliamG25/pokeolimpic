@@ -10,7 +10,7 @@ import {
   Share,
   Modal,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset } from '../utils/safeArea';
 import type { MetaRateEntry, SmogonUsageEntry } from '../api/smogon';
 import { fetchAbility, fetchMove } from '../api/pokeapi';
 import { fetchItemDetail } from '../api/gameData';
@@ -93,7 +93,6 @@ export function MetaPokemonDetailScreen({
   onOpenFullDetail,
   onOpenCalc,
 }: Props): React.JSX.Element {
-  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [moveLabels, setMoveLabels] = useState<
     { label: string; rate: number; englishName: string }[]
@@ -193,8 +192,8 @@ export function MetaPokemonDetailScreen({
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
         },
       ]}
     >

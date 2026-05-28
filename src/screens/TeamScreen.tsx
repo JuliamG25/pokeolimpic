@@ -10,7 +10,7 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import {
   createSavedTeam,
   deleteSavedTeam,
@@ -52,7 +52,6 @@ type Props = {
 };
 
 export function TeamScreen({ onBack, onOpenPokemon, refreshKey = 0 }: Props) {
-  const insets = useSafeAreaInsets();
   const [teams, setTeams] = useState<SavedTeam[]>([]);
   const [activeTeamId, setActiveTeamIdState] = useState('');
   const [team, setTeam] = useState<SavedTeamSlot[]>([]);
@@ -198,10 +197,10 @@ export function TeamScreen({ onBack, onOpenPokemon, refreshKey = 0 }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

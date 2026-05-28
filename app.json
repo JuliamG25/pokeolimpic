@@ -2,7 +2,7 @@
   "expo": {
     "name": "PokeMeta",
     "slug": "pokemeta",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,6 +16,11 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.juliamg25.pokeolimpic",
+      "versionCode": 5,
+      "permissions": [
+        "INTERNET"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#C8DCF0"
@@ -27,8 +32,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "extra": {
+      "eas": {
+        "projectId": "0e694c97-f126-4506-8bd2-0695def527ed"
+      }
+    },
+    "owner": "juliamg25",
     "plugins": [
-      "expo-localization"
+      "expo-font"
     ]
   }
 }

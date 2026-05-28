@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import { fetchPokemon, fetchPokemonSpecies, fetchMove } from '../api/pokeapi';
 import { getMetaEntryForSlug, type MetaRateEntry, type SmogonUsageEntry } from '../api/smogon';
 import { analyzeTypeMatchups, type TypeMatchupSummary } from '../scoring/competitive';
@@ -27,7 +27,6 @@ type Props = {
 };
 
 export function DetailScreen({ name, onBack, onOpenMove, onOpenMeta }: Props) {
-  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [typeMatchups, setTypeMatchups] = useState<TypeMatchupSummary | null>(null);
@@ -108,10 +107,10 @@ export function DetailScreen({ name, onBack, onOpenMove, onOpenMeta }: Props) {
   }, [name]);
 
   const chrome = {
-    paddingTop: insets.top,
-    paddingLeft: insets.left,
-    paddingRight: insets.right,
-    paddingBottom: insets.bottom,
+    paddingTop: getTopInset(),
+    paddingLeft: getLeftInset(),
+    paddingRight: getRightInset(),
+    paddingBottom: getBottomInset(),
   };
 
   if (loading) {
@@ -143,7 +142,7 @@ export function DetailScreen({ name, onBack, onOpenMove, onOpenMeta }: Props) {
       <ScrollView
         contentContainerStyle={[
           styles.scroll,
-          { paddingBottom: 40 + insets.bottom },
+          { paddingBottom: 40 + getBottomInset() },
         ]}
       >
         <TouchableOpacity onPress={onBack} style={styles.backLink}>

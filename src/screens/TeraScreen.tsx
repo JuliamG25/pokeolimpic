@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import {
   CHAMPIONS_META_LABEL,
   fetchChampionsMetaTeraTypes,
@@ -29,7 +29,6 @@ type Props = {
 };
 
 export function TeraScreen({ onBack }: Props) {
-  const insets = useSafeAreaInsets();
   const [rows, setRows] = useState<MetaCatalogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -88,10 +87,10 @@ export function TeraScreen({ onBack }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

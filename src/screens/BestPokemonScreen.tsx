@@ -9,7 +9,7 @@ import {
   RefreshControl,
   type ViewToken,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import {
   CHAMPIONS_META_LABEL,
   enrichMetaRowLabels,
@@ -51,7 +51,6 @@ type Props = {
 };
 
 export function BestPokemonScreen({ onBack, onSelectMeta }: Props) {
-  const insets = useSafeAreaInsets();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -195,10 +194,10 @@ export function BestPokemonScreen({ onBack, onSelectMeta }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import { fetchMove } from '../api/pokeapi';
 import {
   moveEffectShort,
@@ -51,7 +51,6 @@ export function MoveDetailScreen({
   onOpenPokemon,
   onOpenMeta,
 }: Props) {
-  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [move, setMove] = useState<MoveDetail | null>(null);
@@ -93,10 +92,10 @@ export function MoveDetailScreen({
   }, [move, championsRoster]);
 
   const chrome = {
-    paddingTop: insets.top,
-    paddingBottom: insets.bottom,
-    paddingLeft: insets.left,
-    paddingRight: insets.right,
+    paddingTop: getTopInset(),
+    paddingBottom: getBottomInset(),
+    paddingLeft: getLeftInset(),
+    paddingRight: getRightInset(),
   };
 
   if (loading) {
@@ -201,7 +200,7 @@ export function MoveDetailScreen({
         data={learners}
         keyExtractor={(item) => item.name}
         ListHeaderComponent={header}
-        contentContainerStyle={[styles.listContent, { paddingBottom: 24 + insets.bottom }]}
+        contentContainerStyle={[styles.listContent, { paddingBottom: 24 + getBottomInset() }]}
         keyboardShouldPersistTaps="handled"
         renderItem={({ item }) => {
           const pid = pokemonIdFromResourceUrl(item.url);

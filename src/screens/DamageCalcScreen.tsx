@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Switch,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset } from '../utils/safeArea';
 import { fetchChampionsMetaUsage, type SmogonUsageEntry } from '../api/smogon';
 import {
   getChampionsDexBySlug,
@@ -70,7 +70,6 @@ export function DamageCalcScreen({
   initialMoveName,
   onBack,
 }: Props) {
-  const insets = useSafeAreaInsets();
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [metaErr, setMetaErr] = useState<string | null>(null);
   const [entries, setEntries] = useState<SmogonUsageEntry[]>([]);
@@ -173,7 +172,7 @@ export function DamageCalcScreen({
     <View
       style={[
         styles.safe,
-        { paddingTop: insets.top, paddingBottom: insets.bottom },
+        { paddingTop: getTopInset(), paddingBottom: getBottomInset() },
       ]}
     >
       <PokeScreenHeader compact title="Calculadora" onBack={onBack} backLabel="← Menú" />

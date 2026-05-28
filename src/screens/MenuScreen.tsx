@@ -8,9 +8,8 @@ import {
   Platform,
   useWindowDimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { preloadChampionsMeta } from '../api/smogon';
+import { getTopInset, getBottomInset } from '../utils/safeArea';
 import { colors } from '../theme/colors';
 import { POKE_BORDER, POKE_RADIUS } from '../theme/pokemon';
 
@@ -142,7 +141,6 @@ export function MenuScreen({
   onCalc,
   onSearch,
 }: Props) {
-  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const useTwoCol = isWeb && width >= 680;
@@ -160,21 +158,23 @@ export function MenuScreen({
   };
 
   useEffect(() => {
-    preloadChampionsMeta();
+    const handle = setTimeout(() => {
+      try {
+        preloadChampionsMeta();
+      } catch {
+        /* precarga opcional */
+      }
+    }, 2500);
+    return () => clearTimeout(handle);
   }, []);
 
   return (
     <ScrollView
       style={styles.safe}
-      contentContainerStyle={[styles.scroll, { paddingTop: insets.top, paddingBottom: insets.bottom + 28 }]}
+      contentContainerStyle={[styles.scroll, { paddingTop: getTopInset(), paddingBottom: getBottomInset() + 28 }]}
       showsVerticalScrollIndicator={false}
     >
-      <LinearGradient
-        colors={[colors.headerGradientStart, colors.headerGradientMid, colors.headerGradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.hero, isWeb && styles.heroWeb]}
-      >
+      <View style={[styles.hero, isWeb && styles.heroWeb]}>
         <MenuPokeball />
         <View style={styles.heroBadgeRow}>
           <View style={styles.heroBadge}>
@@ -188,7 +188,7 @@ export function MenuScreen({
         <Text style={styles.tagline}>
           Tu guía competitiva con estilo Pokémon: Pokédex, meta VGC, tipos y más.
         </Text>
-      </LinearGradient>
+      </View>
 
       <TouchableOpacity style={styles.searchBar} onPress={onSearch} activeOpacity={0.85}>
         <Text style={styles.searchPlaceholder}>🔍  Buscar Pokémon, meta, movimientos…</Text>
@@ -241,6 +241,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 32,
     overflow: 'hidden',
+    backgroundColor: colors.headerGradientMid,
   },
   heroWeb: {
     marginHorizontal: 12,

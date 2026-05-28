@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset } from '../utils/safeArea';
 import type { SmogonUsageEntry } from '../api/smogon';
 import { PokeScreenHeader } from '../components/PokeScreenHeader';
 import { colors } from '../theme/colors';
@@ -38,7 +38,6 @@ export function GlobalSearchScreen({
   onOpenItems,
   onOpenAbilities,
 }: Props) {
-  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState<SearchHit[]>([]);
   const [query, setQuery] = useState('');
@@ -87,7 +86,7 @@ export function GlobalSearchScreen({
   );
 
   return (
-    <View style={[styles.safe, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+    <View style={[styles.safe, { paddingTop: getTopInset(), paddingBottom: getBottomInset() }]}>
       <PokeScreenHeader compact title="Buscar" onBack={onBack} backLabel="← Menú" />
 
       <TextInput

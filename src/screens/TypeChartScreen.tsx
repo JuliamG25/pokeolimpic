@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 
 import { fetchType } from '../api/pokeapi';
 import { TypeEffectivenessRow } from '../components/TypeEffectivenessRow';
@@ -34,7 +34,6 @@ type TypeEntry = {
 const ALL_TYPE_NAMES: string[] = [...STANDARD_TYPES];
 
 export function TypeChartScreen({ onBack, onSelectType }: Props): React.JSX.Element {
-  const insets = useSafeAreaInsets();
   const [types, setTypes] = useState<TypeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,10 +88,10 @@ export function TypeChartScreen({ onBack, onSelectType }: Props): React.JSX.Elem
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

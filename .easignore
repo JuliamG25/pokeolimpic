@@ -1,0 +1,4 @@
+pokeolimpic/
+.expo-export-test/
+*.apk
+node_modules/

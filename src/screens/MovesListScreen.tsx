@@ -8,7 +8,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import { fetchMove } from '../api/pokeapi';
 import { fetchChampionsMetaMoveSlugs } from '../api/smogon';
 import { typeNameEs } from '../utils/i18n';
@@ -25,7 +25,6 @@ type Props = {
 };
 
 export function MovesListScreen({ onBack, onSelectMove }: Props) {
-  const insets = useSafeAreaInsets();
   const [names, setNames] = useState<string[]>([]);
   const [dexByName, setDexByName] = useState<Map<string, number>>(() => new Map());
   const [loading, setLoading] = useState(true);
@@ -106,10 +105,10 @@ export function MovesListScreen({ onBack, onSelectMove }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

@@ -18,6 +18,24 @@ npm test
 npx tsc --noEmit
 ```
 
+## Generar APK (Android)
+
+Con [EAS Build](https://docs.expo.dev/build/setup/) (cuenta Expo gratuita):
+
+```bash
+npm install -g eas-cli
+eas login
+eas build --platform android --profile preview
+```
+
+Al terminar, EAS da un enlace para descargar el `.apk`. El perfil `preview` genera APK instalable (no AAB de Play Store).
+
+Build local (requiere Android SDK + Java):
+
+```bash
+eas build --platform android --profile preview --local
+```
+
 ## Mejoras recientes
 
 - Calculadora de daño Gen 9 con sets del meta VGC (motor nativo + PokeAPI)

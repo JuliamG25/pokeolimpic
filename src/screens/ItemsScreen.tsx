@@ -8,7 +8,7 @@ import {
   RefreshControl,
   type ViewToken,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import {
   fetchChampionsMetaItems,
   CHAMPIONS_META_LABEL,
@@ -36,7 +36,6 @@ type Props = {
 };
 
 export function ItemsScreen({ onBack, onOpenMeta }: Props) {
-  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -164,10 +163,10 @@ export function ItemsScreen({ onBack, onOpenMeta }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

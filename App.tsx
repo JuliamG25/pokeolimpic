@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, BackHandler, Platform } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { AppErrorBoundary } from './src/components/AppErrorBoundary';
 import { MenuScreen } from './src/screens/MenuScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { DetailScreen } from './src/screens/DetailScreen';
@@ -91,10 +91,10 @@ export default function App() {
   }, [route.name]);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.root}>
-        <StatusBar style="dark" />
-        <WebMaxWidth>
+    <AppErrorBoundary>
+        <View style={styles.root}>
+          <StatusBar style="dark" />
+          <WebMaxWidth>
           {route.name === 'menu' ? (
             <MenuScreen
               onPokedex={() => setRoute({ name: 'pokedex' })}
@@ -256,9 +256,9 @@ export default function App() {
               onOpenMeta={openMetaEntry}
             />
           ) : null}
-        </WebMaxWidth>
-      </View>
-    </SafeAreaProvider>
+          </WebMaxWidth>
+        </View>
+    </AppErrorBoundary>
   );
 }
 

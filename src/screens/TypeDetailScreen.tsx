@@ -9,7 +9,7 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import type { NamedAPIResource } from '../types/pokeapi';
 import { fetchPokemonNamesForType, fetchType } from '../api/pokeapi';
 import { getChampionsSlugSet, isChampionsSpecies } from '../constants/championsRoster';
@@ -47,7 +47,6 @@ function extractId(url: string): number {
 }
 
 export function TypeDetailScreen({ slug, onBack, onOpenPokemon }: Props) {
-  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [labelEs, setLabelEs] = useState('');
@@ -243,10 +242,10 @@ export function TypeDetailScreen({ slug, onBack, onOpenPokemon }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: getTopInset(),
+          paddingBottom: getBottomInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
         },
       ]}
     >

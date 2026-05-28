@@ -42,5 +42,8 @@ yarn-error.*
 
 # test / local
 .expo-bundle-test/
+.expo-export-test/
+pokeolimpic/
 .kiro/
 .vscode/
+*.apk

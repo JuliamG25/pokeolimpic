@@ -1,5 +1,4 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme/colors';
 import { HORIZONTAL_PADDING } from '../theme/layout';
 import { POKE_BORDER } from '../theme/pokemon';
@@ -35,12 +34,7 @@ export function PokeScreenHeader({
   }
 
   return (
-    <LinearGradient
-      colors={[colors.headerGradientStart, colors.headerGradientMid, colors.headerGradientEnd]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.hero}
-    >
+    <View style={styles.hero}>
       <View style={styles.pokeballDecor} pointerEvents="none">
         <View style={styles.pokeballTop} />
         <View style={styles.pokeballLine} />
@@ -54,7 +48,7 @@ export function PokeScreenHeader({
       ) : null}
       <Text style={styles.heroTitle}>{title}</Text>
       {subtitle ? <Text style={styles.heroSub}>{subtitle}</Text> : null}
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -65,6 +59,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     marginBottom: 4,
     overflow: 'hidden',
+    backgroundColor: colors.headerGradientMid,
   },
   pokeballDecor: {
     position: 'absolute',

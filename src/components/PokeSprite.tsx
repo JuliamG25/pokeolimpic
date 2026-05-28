@@ -1,5 +1,4 @@
-import { Image } from 'expo-image';
-import { StyleProp, ImageStyle, View, StyleSheet } from 'react-native';
+import { Image, StyleProp, ImageStyle, View, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 
 type Props = {
@@ -7,15 +6,13 @@ type Props = {
   style?: StyleProp<ImageStyle>;
 };
 
-/** Sprite con caché en disco/memoria (expo-image). */
+/** Sprite (Image nativo de RN — más estable en APK release que expo-image). */
 export function PokeSprite({ uri, style }: Props): React.JSX.Element {
   return (
     <Image
       source={{ uri }}
       style={style}
-      contentFit="contain"
-      cachePolicy="memory-disk"
-      transition={120}
+      resizeMode="contain"
     />
   );
 }

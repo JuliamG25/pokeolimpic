@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getTopInset, getBottomInset, getLeftInset, getRightInset } from '../utils/safeArea';
 import {
   fetchGeneration,
   fetchPokemonNamesForType,
@@ -55,7 +55,6 @@ function intersectSets(sets: Set<string>[]): Set<string> {
 }
 
 export function HomeScreen({ onOpenPokemon, onBackToMenu }: Props) {
-  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [names, setNames] = useState<string[]>([]);
   /** Número de Pokédex nacional (ID de entrada API) por nombre */
@@ -301,10 +300,10 @@ export function HomeScreen({ onOpenPokemon, onBackToMenu }: Props) {
       style={[
         styles.safe,
         {
-          paddingTop: insets.top,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-          paddingBottom: insets.bottom,
+          paddingTop: getTopInset(),
+          paddingLeft: getLeftInset(),
+          paddingRight: getRightInset(),
+          paddingBottom: getBottomInset(),
         },
       ]}
     >
