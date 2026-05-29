@@ -31,6 +31,7 @@ type Row = MetaCatalogEntry & { nameEs?: string; shortDesc?: string };
 
 type Props = {
   onBack: () => void;
+  openAbility?: string;
 };
 
 function isBadDescription(text: string): boolean {
@@ -39,7 +40,7 @@ function isBadDescription(text: string): boolean {
   );
 }
 
-export function AbilitiesScreen({ onBack }: Props) {
+export function AbilitiesScreen({ onBack, openAbility }: Props) {
   const [abilities, setAbilities] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -153,6 +154,11 @@ export function AbilitiesScreen({ onBack }: Props) {
       setModalLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!openAbility || loading) return;
+    void openDetail(openAbility);
+  }, [openAbility, loading, openDetail]);
 
   const renderItem = useCallback(
     ({ item, index }: { item: Row; index: number }) => (

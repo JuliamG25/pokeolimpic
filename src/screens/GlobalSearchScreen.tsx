@@ -24,10 +24,10 @@ import {
 type Props = {
   onBack: () => void;
   onOpenPokemon: (slug: string) => void;
-  onOpenMeta: (entry: SmogonUsageEntry, spriteId: number) => void;
+  onOpenMeta: (entry: SmogonUsageEntry) => void;
   onOpenMove: (slug: string) => void;
-  onOpenItems: () => void;
-  onOpenAbilities: () => void;
+  onOpenItem: (name: string) => void;
+  onOpenAbility: (name: string) => void;
 };
 
 export function GlobalSearchScreen({
@@ -35,28 +35,34 @@ export function GlobalSearchScreen({
   onOpenPokemon,
   onOpenMeta,
   onOpenMove,
-  onOpenItems,
-  onOpenAbilities,
+  onOpenItem,
+  onOpenAbility,
 }: Props) {
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [index, setIndex] = useState<SearchHit[]>([]);
   const [query, setQuery] = useState('');
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const hits = await buildGlobalSearchIndex();
-        if (alive) setIndex(hits);
-      } finally {
-        if (alive) setLoading(false);
+  const loadIndex = useCallback(async (force = false) => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const hits = await buildGlobalSearchIndex(force);
+      setIndex(hits);
+      if (hits.length === 0) {
+        setLoadError('No hay datos para buscar. Revisá tu conexión e intentá de nuevo.');
       }
-    })();
-    return () => {
-      alive = false;
-    };
+    } catch {
+      setIndex([]);
+      setLoadError('No se pudo cargar el índice de búsqueda. Revisá tu conexión e intentá de nuevo.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadIndex();
+  }, [loadIndex]);
 
   const results = useMemo(() => filterSearchHits(index, query, 50), [index, query]);
 
@@ -67,22 +73,22 @@ export function GlobalSearchScreen({
         return;
       }
       if (hit.kind === 'meta' && hit.entry) {
-        onOpenMeta(hit.entry, 0);
+        onOpenMeta(hit.entry);
         return;
       }
       if (hit.kind === 'move' && hit.slug) {
         onOpenMove(hit.slug);
         return;
       }
-      if (hit.kind === 'item') {
-        onOpenItems();
+      if (hit.kind === 'item' && hit.slug) {
+        onOpenItem(hit.slug);
         return;
       }
-      if (hit.kind === 'ability') {
-        onOpenAbilities();
+      if (hit.kind === 'ability' && hit.slug) {
+        onOpenAbility(hit.slug);
       }
     },
-    [onOpenAbilities, onOpenItems, onOpenMeta, onOpenMove, onOpenPokemon],
+    [onOpenAbility, onOpenItem, onOpenMeta, onOpenMove, onOpenPokemon],
   );
 
   return (
@@ -102,6 +108,13 @@ export function GlobalSearchScreen({
 
       {loading ? (
         <ActivityIndicator color={colors.accent} style={{ marginTop: 24 }} />
+      ) : loadError ? (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>{loadError}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={() => void loadIndex(true)}>
+            <Text style={styles.retryText}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <FlatList
           data={results}
@@ -109,7 +122,9 @@ export function GlobalSearchScreen({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.list}
           ListEmptyComponent={
-            <Text style={styles.empty}>Sin resultados para «{query}».</Text>
+            <Text style={styles.empty}>
+              {query.trim() ? `Sin resultados para «${query}».` : 'Escribí para buscar en Pokédex, meta y más.'}
+            </Text>
           }
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.row} onPress={() => onSelect(item)}>
@@ -164,4 +179,15 @@ const styles = StyleSheet.create({
   },
   kindText: { color: colors.accent, fontSize: 11, fontWeight: '700' },
   empty: { color: colors.textMuted, textAlign: 'center', padding: 24 },
+  errorBox: { padding: 24, alignItems: 'center', gap: 16 },
+  errorText: { color: colors.danger, textAlign: 'center', lineHeight: 22 },
+  retryBtn: {
+    backgroundColor: colors.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: POKE_BORDER,
+    borderColor: colors.cardBorder,
+  },
+  retryText: { color: colors.textOnPrimary, fontWeight: '800' },
 });

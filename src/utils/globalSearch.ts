@@ -6,6 +6,9 @@ import {
   fetchChampionsMetaUsage,
   type SmogonUsageEntry,
 } from '../api/smogon';
+import { fetchMove } from '../api/pokeapi';
+import { fetchAbilityDetail, fetchItemDetail, mapPool, preloadGameDataIndexes } from '../api/gameData';
+import { moveNameEs } from './i18n';
 import { matchesSearch } from './search';
 
 export type SearchHitKind = 'pokemon' | 'meta' | 'move' | 'item' | 'ability';
@@ -17,6 +20,8 @@ export interface SearchHit {
   sub?: string;
   slug?: string;
   entry?: SmogonUsageEntry;
+  /** Campos extra para búsqueda (EN, ES, slug, etc.) */
+  aliases?: string[];
 }
 
 let cachedIndex: SearchHit[] | null = null;
@@ -24,13 +29,27 @@ let cachedIndex: SearchHit[] | null = null;
 export async function buildGlobalSearchIndex(force = false): Promise<SearchHit[]> {
   if (cachedIndex && !force) return cachedIndex;
 
-  const [roster, { entries }, moveSlugs, items, abilities] = await Promise.all([
+  await preloadGameDataIndexes();
+
+  const [rosterR, metaR, movesR, itemsR, abilitiesR] = await Promise.allSettled([
     loadChampionsRoster(),
     fetchChampionsMetaUsage(80),
     fetchChampionsMetaMoveSlugs(),
     fetchChampionsMetaItems(80),
     fetchChampionsMetaAbilities(80),
   ]);
+
+  if (rosterR.status === 'rejected') {
+    throw rosterR.reason instanceof Error
+      ? rosterR.reason
+      : new Error('No se pudo cargar el roster de Pokémon Champions');
+  }
+
+  const roster = rosterR.value;
+  const entries = metaR.status === 'fulfilled' ? metaR.value.entries : [];
+  const moveSlugs = movesR.status === 'fulfilled' ? movesR.value : [];
+  const items = itemsR.status === 'fulfilled' ? itemsR.value : [];
+  const abilities = abilitiesR.status === 'fulfilled' ? abilitiesR.value : [];
 
   const displayNames = await loadRosterDisplayNames(roster);
   const metaBySlug = new Map(entries.map((e) => [e.slug, e]));
@@ -39,12 +58,14 @@ export async function buildGlobalSearchIndex(force = false): Promise<SearchHit[]
 
   for (const r of roster) {
     const label = displayNames.get(r.speciesSlug) ?? r.speciesSlug.replace(/-/g, ' ');
+    const english = r.speciesSlug.replace(/-/g, ' ');
     hits.push({
       kind: 'pokemon',
       id: `poke-${r.speciesSlug}`,
       label,
       sub: 'Pokédex Champions',
       slug: r.speciesSlug,
+      aliases: [r.speciesSlug, english],
     });
     const meta = metaBySlug.get(r.speciesSlug);
     if (meta) {
@@ -55,6 +76,7 @@ export async function buildGlobalSearchIndex(force = false): Promise<SearchHit[]
         sub: `Meta · ${(meta.usage * 100).toFixed(1)}% uso`,
         slug: meta.slug,
         entry: meta,
+        aliases: [meta.slug, meta.name, label],
       });
     }
   }
@@ -68,37 +90,89 @@ export async function buildGlobalSearchIndex(force = false): Promise<SearchHit[]
         sub: `Meta · ${(e.usage * 100).toFixed(1)}% uso`,
         slug: e.slug,
         entry: e,
+        aliases: [e.slug, e.name],
       });
     }
   }
 
-  for (const slug of moveSlugs) {
+  const moveRows = await mapPool(moveSlugs, 8, async (slug) => {
+    try {
+      const m = await fetchMove(slug);
+      return {
+        slug,
+        label: moveNameEs(m),
+        aliases: [slug, m.name, slug.replace(/-/g, ' ')],
+      };
+    } catch {
+      const fallback = slug.replace(/-/g, ' ');
+      return { slug, label: fallback, aliases: [slug, fallback] };
+    }
+  });
+
+  for (const row of moveRows) {
     hits.push({
       kind: 'move',
-      id: `move-${slug}`,
-      label: slug.replace(/-/g, ' '),
+      id: `move-${row.slug}`,
+      label: row.label,
       sub: 'Movimiento meta',
-      slug,
+      slug: row.slug,
+      aliases: row.aliases,
     });
   }
 
-  for (const it of items) {
+  const itemRows = await mapPool(items, 8, async (it) => {
+    try {
+      const d = await fetchItemDetail(it.name);
+      return {
+        name: it.name,
+        label: d.nameEs,
+        aliases: [it.name, d.nameEs, d.nameEn, d.slug],
+      };
+    } catch {
+      return {
+        name: it.name,
+        label: it.name,
+        aliases: [it.name],
+      };
+    }
+  });
+
+  for (const row of itemRows) {
     hits.push({
       kind: 'item',
-      id: `item-${it.name}`,
-      label: it.name,
+      id: `item-${row.name}`,
+      label: row.label,
       sub: 'Objeto meta',
-      slug: it.name,
+      slug: row.name,
+      aliases: row.aliases,
     });
   }
 
-  for (const ab of abilities) {
+  const abilityRows = await mapPool(abilities, 8, async (ab) => {
+    try {
+      const d = await fetchAbilityDetail(ab.name);
+      return {
+        name: ab.name,
+        label: d.nameEs,
+        aliases: [ab.name, d.nameEs, d.nameEn, d.slug],
+      };
+    } catch {
+      return {
+        name: ab.name,
+        label: ab.name,
+        aliases: [ab.name],
+      };
+    }
+  });
+
+  for (const row of abilityRows) {
     hits.push({
       kind: 'ability',
-      id: `ab-${ab.name}`,
-      label: ab.name,
+      id: `ab-${row.name}`,
+      label: row.label,
       sub: 'Habilidad meta',
-      slug: ab.name,
+      slug: row.name,
+      aliases: row.aliases,
     });
   }
 
@@ -109,7 +183,7 @@ export async function buildGlobalSearchIndex(force = false): Promise<SearchHit[]
 export function filterSearchHits(hits: SearchHit[], query: string, limit = 40): SearchHit[] {
   if (!query.trim()) return hits.slice(0, limit);
   return hits
-    .filter((h) => matchesSearch(h.label, query) || matchesSearch(h.sub ?? '', query))
+    .filter((h) => matchesSearch(query, h.label, h.sub, h.slug, ...(h.aliases ?? [])))
     .slice(0, limit);
 }
 

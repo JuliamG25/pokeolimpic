@@ -33,9 +33,10 @@ type Row = MetaCatalogEntry & { nameEs?: string; spriteUrl?: string | null };
 type Props = {
   onBack: () => void;
   onOpenMeta?: (slug: string) => void;
+  openItem?: string;
 };
 
-export function ItemsScreen({ onBack, onOpenMeta }: Props) {
+export function ItemsScreen({ onBack, onOpenMeta, openItem }: Props) {
   const [items, setItems] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -132,6 +133,11 @@ export function ItemsScreen({ onBack, onOpenMeta }: Props) {
       setModalLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!openItem || loading) return;
+    void openDetail(openItem);
+  }, [openItem, loading, openDetail]);
 
   const renderItem = useCallback(
     ({ item, index }: { item: Row; index: number }) => (

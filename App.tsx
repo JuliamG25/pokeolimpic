@@ -33,8 +33,8 @@ export type AppRoute =
   | { name: 'best' }
   | { name: 'types' }
   | { name: 'moves' }
-  | { name: 'items' }
-  | { name: 'abilities' }
+  | { name: 'items'; openItem?: string; returnTo?: AppRoute }
+  | { name: 'abilities'; openAbility?: string; returnTo?: AppRoute }
   | { name: 'tera' }
   | { name: 'team' }
   | {
@@ -44,15 +44,15 @@ export type AppRoute =
       moveName?: string;
       calcReturn?: AppRoute;
     }
-  | { name: 'moveDetail'; slug: string; resume?: PokemonResume }
+  | { name: 'moveDetail'; slug: string; resume?: PokemonResume; returnTo?: AppRoute }
   | { name: 'typeDetail'; slug: string }
-  | { name: 'metaDetail'; entry: SmogonUsageEntry; spriteId: number }
+  | { name: 'metaDetail'; entry: SmogonUsageEntry; spriteId: number; returnTo?: AppRoute }
   | {
       name: 'detail';
       pokemon: string;
-      from: 'pokedex' | 'best' | 'move' | 'meta' | 'team';
+      from: 'pokedex' | 'best' | 'move' | 'meta' | 'team' | 'search';
       moveSlug?: string;
-      metaReturn?: { entry: SmogonUsageEntry; spriteId: number };
+      metaReturn?: { entry: SmogonUsageEntry; spriteId: number; returnTo?: AppRoute };
     };
 
 export default function App() {
@@ -112,18 +112,21 @@ export default function App() {
             <GlobalSearchScreen
               onBack={() => setRoute({ name: 'menu' })}
               onOpenPokemon={(slug) =>
-                setRoute({ name: 'detail', pokemon: slug, from: 'pokedex' })
+                setRoute({ name: 'detail', pokemon: slug, from: 'search' })
               }
-              onOpenMeta={(entry, spriteId) => {
-                const id =
-                  spriteId > 0
-                    ? spriteId
-                    : resolveChampionsSpriteId(entry.slug, getChampionsDexBySlug());
-                setRoute({ name: 'metaDetail', entry, spriteId: id });
+              onOpenMeta={(entry) => {
+                const spriteId = resolveChampionsSpriteId(entry.slug, getChampionsDexBySlug());
+                setRoute({ name: 'metaDetail', entry, spriteId, returnTo: { name: 'search' } });
               }}
-              onOpenMove={(slug) => setRoute({ name: 'moveDetail', slug })}
-              onOpenItems={() => setRoute({ name: 'items' })}
-              onOpenAbilities={() => setRoute({ name: 'abilities' })}
+              onOpenMove={(slug) =>
+                setRoute({ name: 'moveDetail', slug, returnTo: { name: 'search' } })
+              }
+              onOpenItem={(name) =>
+                setRoute({ name: 'items', openItem: name, returnTo: { name: 'search' } })
+              }
+              onOpenAbility={(name) =>
+                setRoute({ name: 'abilities', openAbility: name, returnTo: { name: 'search' } })
+              }
             />
           ) : route.name === 'pokedex' ? (
             <HomeScreen
@@ -143,13 +146,20 @@ export default function App() {
             <MetaPokemonDetailScreen
               entry={route.entry}
               spriteId={route.spriteId}
-              onBack={() => setRoute({ name: 'best' })}
+              onBack={() => {
+                const parent = getParentRoute(route);
+                if (parent) setRoute(parent);
+              }}
               onOpenFullDetail={(slug) =>
                 setRoute({
                   name: 'detail',
                   pokemon: slug,
                   from: 'meta',
-                  metaReturn: { entry: route.entry, spriteId: route.spriteId },
+                  metaReturn: {
+                    entry: route.entry,
+                    spriteId: route.spriteId,
+                    returnTo: route.returnTo,
+                  },
                 })
               }
               onOpenCalc={(attacker, moveName) =>
@@ -177,11 +187,21 @@ export default function App() {
             />
           ) : route.name === 'items' ? (
             <ItemsScreen
-              onBack={() => setRoute({ name: 'menu' })}
+              onBack={() => {
+                const parent = getParentRoute(route);
+                if (parent) setRoute(parent);
+              }}
+              openItem={route.openItem}
               onOpenMeta={openMetaBySlug}
             />
           ) : route.name === 'abilities' ? (
-            <AbilitiesScreen onBack={() => setRoute({ name: 'menu' })} />
+            <AbilitiesScreen
+              onBack={() => {
+                const parent = getParentRoute(route);
+                if (parent) setRoute(parent);
+              }}
+              openAbility={route.openAbility}
+            />
           ) : route.name === 'tera' ? (
             <TeraScreen onBack={() => setRoute({ name: 'menu' })} />
           ) : route.name === 'calc' ? (

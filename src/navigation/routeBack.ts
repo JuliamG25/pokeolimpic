@@ -10,17 +10,20 @@ export function getParentRoute(route: AppRoute): AppRoute | null {
     case 'search':
     case 'types':
     case 'moves':
-    case 'items':
-    case 'abilities':
     case 'tera':
     case 'team':
+      return { name: 'menu' };
+    case 'items':
+    case 'abilities':
+      return route.returnTo ?? { name: 'menu' };
     case 'calc':
-      return route.name === 'calc' && route.calcReturn ? route.calcReturn : { name: 'menu' };
+      return route.calcReturn ?? { name: 'menu' };
     case 'typeDetail':
       return { name: 'types' };
     case 'metaDetail':
-      return { name: 'best' };
+      return route.returnTo ?? { name: 'best' };
     case 'moveDetail':
+      if (route.returnTo) return route.returnTo;
       if (route.resume) {
         return {
           name: 'detail',
@@ -39,11 +42,13 @@ export function getParentRoute(route: AppRoute): AppRoute | null {
           name: 'metaDetail',
           entry: route.metaReturn.entry,
           spriteId: route.metaReturn.spriteId,
+          returnTo: route.metaReturn.returnTo,
         };
       }
       if (route.from === 'pokedex') return { name: 'pokedex' };
       if (route.from === 'best') return { name: 'best' };
       if (route.from === 'team') return { name: 'team' };
+      if (route.from === 'search') return { name: 'search' };
       return { name: 'menu' };
     default:
       return { name: 'menu' };

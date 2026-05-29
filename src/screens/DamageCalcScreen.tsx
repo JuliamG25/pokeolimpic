@@ -116,7 +116,7 @@ export function DamageCalcScreen({
 
   const filtered = useMemo(() => {
     if (!query.trim()) return entries;
-    return entries.filter((e) => matchesSearch(e.name, query));
+    return entries.filter((e) => matchesSearch(query, e.name, e.slug));
   }, [entries, query]);
 
   const moveOptions = useMemo(() => {
