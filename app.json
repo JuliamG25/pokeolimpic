@@ -2,7 +2,7 @@
   "expo": {
     "name": "PokeMeta",
     "slug": "pokemeta",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.juliamg25.pokeolimpic",
-      "versionCode": 5,
+      "versionCode": 6,
       "permissions": [
         "INTERNET"
       ],
